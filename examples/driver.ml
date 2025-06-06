@@ -2,7 +2,7 @@ open Merkle
 open Benchmark
 
 (* Binary Tree *)
-let t = ref Bintree.Tip;;
+(* let t = ref Bintree.Tip;; *)
 
 let setup file =
   if is_verifier then setup_verifier file else 
@@ -10,10 +10,10 @@ let setup file =
   if is_ideal then ignore() else
   failwith Sys.executable_name;;
 
-setup "proof_bintree.dat";
+(* setup "proof_bintree.dat";
 for i = 0 to 10 do
   t := Bintree.ins i !t
-done;
+done; *)
 
 (*
 for i = -1 to 11 do
@@ -29,14 +29,14 @@ flush_cache();
 
 
 (* Skiplist *)
-setup "proof_skiplist.dat";
+(* setup "proof_skiplist.dat";
 Random.init(0xbadbeef);;
 
 let t = ref Skiplist.empty;;
 
 for i = 0 to 10 do
   t := Skiplist.insert !t i
-done;
+done; *)
 
 (*
 for i = -1 to 11 do
@@ -47,15 +47,15 @@ for i = -1 to 11 do
 done;
 *)
 
-insist();
-flush_cache();;
+(* insist();
+flush_cache();; *)
 
 
 (* Red Black tree *)
 setup "proof_redblack.dat";;
 
 let min_k = 4;;
-let max_k = 21;;
+let max_k = 4;;
 
 let rec two_to = function 0 -> 1 | n -> 2 * two_to (n - 1);;
 let range = let rec _range acc lo hi = 
@@ -65,16 +65,16 @@ in _range []
 let rand_odd () = Random.int(50000000) * 2;;
 let rand_even () = Random.int (50000000) * 2 + 1;;
 
-let prepare_tree k =
+(* let prepare_tree k =
   let tree = ref Redblack.empty in
   Random.init (0xBEEF + k);
   for i = 0 to two_to k do
     let a = rand_odd() in
     tree := Redblack.insert a (string_of_int a) !tree;
   done;
-  !tree;;
+  !tree;; *)
 
-let write_tree_prover k =
+(* let write_tree_prover k =
   setup_prover "/dev/null";
   Printf.printf "Building tree 2^%d... " k; flush_cache();
   let tree = prepare_tree k in
@@ -95,10 +95,10 @@ let write_tree_verifier k =
   let t = shallow_func (read_tree_prover k) in
   let file = open_out_bin (Printf.sprintf "data/bst_shal_%03d.dat" k) in
   Marshal.to_channel file t [];
-  close_out file *)
+  close_out file *) *)
 
 
-let write_tree_ideal k =
+(* let write_tree_ideal k =
   setup_prover "/dev/null";
   Printf.printf "Building tree 2^%d... " k; flush_cache();
   let tree = prepare_tree k in
@@ -108,15 +108,15 @@ let write_tree_ideal k =
   Printf.printf "OK\n"; flush_cache();;
 
 let read_tree_ideal k : Redblack.tree =
-  Marshal.from_channel (open_in_bin (Printf.sprintf "data/bst_%03d.dat" k));;
+  Marshal.from_channel (open_in_bin (Printf.sprintf "data/bst_%03d.dat" k));; *)
 
 
-let t = ref Redblack.empty;;
+(* let t = ref Redblack.empty;;
 
 for i = 0 to 10 do
   t := Redblack.insert i (string_of_int i) !t
 done;
-flush_cache();;
+flush_cache();; *)
 
 (*
 for i = -1 to 11 do
@@ -125,7 +125,7 @@ for i = -1 to 11 do
   | Some v -> Printf.eprintf "member %d (%s): true\n" i v
 done;
 *)
-for i = 0 to 10 do
+(* for i = 0 to 10 do
   t := Redblack.delete i !t
 done;
 flush_cache();;
@@ -135,10 +135,10 @@ for i = -1 to 11 do
   match Redblack.lookup i !t with
   | None -> Printf.eprintf "member %d: false\n" i
   | Some v -> Printf.eprintf "member %d (%s): true\n" i v
-done;
+done; *)
 
 
-insist();
+(* insist();
 flush_cache();;
 
 let bench_ins iter k =
@@ -204,7 +204,7 @@ let prepare_all() =
     for k = min_k to max_k do write_tree_ideal k done
   else if is_verifier then
     for k = min_k to max_k do write_tree_verifier k done
-  else ignore();;
+  else ignore();; *)
 
 
 (* Merkle tree test *)
@@ -229,17 +229,19 @@ let write_leaves k =
     
 
 let write_mtree k =
-  setup_prover "/dev/null";
-  Printf.printf "Building mtree 2^%d... " k; flush_cache();
-  let leaves = random_leaves k in
-  let file = open_out_bin (Printf.sprintf "data/mtree_%03d.dat" k) in
-  let tree = Mtree.from_list leaves in
-  Marshal.to_channel file tree [];
-  Printf.printf "OK\n"; flush_cache();
-  let file = open_out_bin (Printf.sprintf "data/mtree1_%03d.dat" k) in
-  let tree = Mtree.from_list1 leaves in
-  Marshal.to_channel file tree [];
-  Printf.printf "OK\n"; flush_cache();;
+  if is_prover then begin
+    setup_prover "/dev/null";
+    Printf.printf "Building mtree 2^%d... " k; flush_cache();
+    let leaves = random_leaves k in
+    let file = open_out_bin (Printf.sprintf "data/mtree_%03d.dat" k) in
+    let tree = Mtree.from_list leaves in
+    Marshal.to_channel file tree [];
+    Printf.printf "OK\n"; flush_cache();
+    let file = open_out_bin (Printf.sprintf "data/mtree1_%03d.dat" k) in
+    let tree = Mtree.from_list1 leaves in
+    Marshal.to_channel file tree [];
+    Printf.printf "OK\n"; flush_cache(); end
+  else ()
 
 let read_mtree_prover k : Mtree.tree =
   Marshal.from_channel (open_in_bin (Printf.sprintf "data/mtree_%03d.dat" k));;
@@ -250,7 +252,7 @@ let read_mtree1_prover k : Mtree.tree1 =
 let bench_mtree iter k =
   let n = two_to k in
   let tree = if is_prover then read_mtree_prover k
-  else assert false (* shallow_func (read_mtree_prover k) *) (* This must be commented out for Ideal. Hack! *)
+  else shallow_func (read_mtree_prover k) (* This must be commented out for Ideal. Hack! *)
   in
   Gc.compact();
   let res = throughput1 2
@@ -315,13 +317,51 @@ let bench_mtree1 iter k =
 
 (* prepare_all() *)
 
- let () = for i = min_k to max_k do bench_ins 100000 i done;; 
+ (* let () = for i = min_k to max_k do bench_ins 100000 i done;;  *)
 (* let () = for i = min_k to max_k do bench_look 100000 i done;; *)
 (*  bench_ins 1 4;; *)
 (* bench_ins 10000 (int_of_string (Sys.argv.(1)));; *)
 
+let rec init i last f =
+  if i > last then []
+  else if i = last then [f i]
+  else
+    let r1 = f i in
+    let r2 = f (i+1) in
+    r1 :: r2 :: init (i+2) last f;;
+
+let init len f =
+  if len < 0 then invalid_arg "List.init" else
+  init 0 (len - 1) f;;
+
+let k = 4 in
+let n = two_to k in
+let tree = if is_prover then read_mtree_prover k else shallow_func (read_mtree_prover k) in
+let _ = setup "proof_redblacks.dat" in
+let b = Mtree.compare tree tree in
+let _ = Random.init (0x7070 + k) in
+let a = init 10 (fun _ -> Mtree.from_int n (Random.int n)) in
+(* let _ = Random.init (0x7070 + k) in *)
+let random_string size = 
+  let s = String.create size in
+  for i = 0 to size-1 do s.[i] <- BatRandom.char() done;
+  s 
+in
+let leaf = random_string Mtree.size_leaf in
+let path = Mtree.from_int n (Random.int n) in
+let _ = Mtree.update path tree leaf in
+let leaves = ref [] in
+let _ = for i = 1 to 10 do 
+    leaves := random_string Mtree.size_leaf :: !leaves 
+  done
+in
+let _ = Mtree.update_list (List.combine a !leaves) tree in
+insist ()
+
+(* Mtree.fetch a tree; *)
+
 (* Merkle test *)
-(* let () = for i = 4 to 18 do write_mtree i done;; *)
-(* for i = 4 to 18 do bench_mtree 100000 i done;; *)
-(*  for i = 4 to 18 do bench_mtree1 100000 i done;; *)
-(* for i = 4 to 18 do write_leaves i done;; *)
+(* let () = for i = min_k to max_k do write_mtree i done;;
+for i = min_k to max_k do bench_mtree 5 i done;;
+ for i = min_k to max_k do bench_mtree1 5 i done;;
+for i = min_k to max_k do write_leaves i done;; *)

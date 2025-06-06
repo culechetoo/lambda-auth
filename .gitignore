@@ -5,3 +5,10 @@
 *.cmi
 *.cmti
 *.o
+*.dat
+*.annot
+driver_prv
+driver_vrf
+poorman
+redblack_prv
+redblack_vrf

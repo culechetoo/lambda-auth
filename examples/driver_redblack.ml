@@ -46,14 +46,29 @@ let write_tree_prover k =
   Printf.printf "OK\n"; flush_cache();;
 
 let write_tree_verifier k =
-  let t = shallow_func (read_tree_prover k) in
+  assert false
+  (* let t = shallow_func (read_tree_prover k) in
   let file = open_out_bin (Printf.sprintf "data/bst_shal_%03d.dat" k) in
   Marshal.to_channel file t [];
-  close_out file
+  close_out file *)
+
+
+let write_tree_ideal k =
+  setup_prover "/dev/null";
+  Printf.printf "Building tree 2^%d... " k; flush_cache();
+  let tree = prepare_tree k in
+  Printf.printf "OK\n";
+  let file = open_out_bin (Printf.sprintf "data/bst_%03d.dat" k) in
+  Marshal.to_channel file tree [];
+  Printf.printf "OK\n"; flush_cache();;
+
+let read_tree_ideal k : Redblack.tree =
+  Marshal.from_channel (open_in_bin (Printf.sprintf "data/bst_%03d.dat" k));;
 
 
 let bench_ins iter k =
   let tree = if is_prover then read_tree_prover k
+  else if is_ideal then read_tree_ideal k 
   else read_tree_verifier k
   in
   Gc.compact();
@@ -109,6 +124,8 @@ let bench_look iter k =
 let prepare_all() =
   if is_prover then
     for k = min_k to max_k do write_tree_prover k done
+  else if is_ideal then 
+    for k = min_k to max_k do write_tree_ideal k done
   else if is_verifier then
     for k = min_k to max_k do write_tree_verifier k done
   else ignore();;
@@ -116,4 +133,4 @@ let prepare_all() =
 prepare_all()
 
 let () = for i = min_k to max_k do bench_ins 100000 i done;; 
-let () = for i = min_k to max_k do bench_look 100000 i done;;
+(* let () = for i = min_k to max_k do bench_look 100000 i done;; *)

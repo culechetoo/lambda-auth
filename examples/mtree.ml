@@ -52,6 +52,18 @@ let update_stk idx t newval : tree =
     | SR(s, l) -> _apply (auth(Bin(l,child)), unauth s) in
   _apply(_build idx t E)
   
+let rec update_list key_values t : tree =
+  match key_values with
+  | [] -> t
+  | (idx, newval) :: key_values ->
+    let t' = update idx t newval in
+    (* insist (); *)
+    update_list key_values t'
+
+let rec compare t1 t2 =
+  match unauth t1, unauth t2 with
+  | Tip s1, Tip s2 -> String.compare s1 s2 = 0
+  | Bin (l1, r1), Bin (l2, r2) -> compare l1 l2 && compare r1 r2
 
 (*
 let update_cps idx t newval : tree =
@@ -102,7 +114,7 @@ let write_path file k leaf path =
   assert (String.length leaf = size_leaf);
   output_string file leaf;
   List.iter (fun sibling -> 
-    assert (String.length sibling = 20);
+    assert (String.length sibling = 32);
     output_string file sibling) path
 
 let read_path file k =
@@ -110,8 +122,8 @@ let read_path file k =
   really_input file leaf 0 size_leaf;
   let path = ref [] in
   for i = 1 to k do
-    let sibling = String.create 20 in
-    really_input file sibling 0 20;
+    let sibling = String.create 32 in
+    really_input file sibling 0 32;
     path := sibling :: !path
   done;
   leaf, List.rev !path

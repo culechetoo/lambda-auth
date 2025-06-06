@@ -30,14 +30,18 @@ poorman: $(OBJS)
 
 redblack: 
 	ocamlfind ocamlopt -package batteries,sha $(PROF) -c examples/merkle.ml
-#	prover
-	MODE=prover ./poorman $(PROF) -c examples/redblack.ml
+# #	prover
+# 	MODE=prover ./poorman $(PROF) -c examples/redblack.ml
+# 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
+# 	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_prv merkle.cmx redblack.cmx examples/driver_redblack.ml 
+# #	verifier
+# 	MODE=verifier ./poorman $(PROF) -c examples/redblack.ml
+# 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
+# 	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_vrf merkle.cmx redblack.cmx examples/driver_redblack.ml 
+#	ideal
+	MODE=ideal ./poorman $(PROF) -c examples/redblack.ml
 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
-	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_prv merkle.cmx redblack.cmx examples/driver_redblack.ml 
-#	verifier
-	MODE=verifier ./poorman $(PROF) -c examples/redblack.ml
-	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
-	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_vrf merkle.cmx redblack.cmx examples/driver_redblack.ml 
+	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_idl merkle.cmx redblack.cmx examples/driver_redblack.ml 
 
 prover:
 	ocamlfind ocamlopt -package batteries,sha $(PROF) -c examples/merkle.ml
@@ -47,7 +51,7 @@ prover:
 	MODE=prover ./poorman $(PROF) -c examples/mtree.ml
 	MODE=prover ./poorman $(PROF) -c examples/blockchain.ml
 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver.ml
-	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o driver_prv merkle.cmx skiplist.cmx bintree.cmx redblack.cmx mtree.cmx blockchain.cmx examples/driver.ml 
+	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o driver_prv merkle.cmx mtree.cmx examples/driver.ml 
 
 verifier:
 	ocamlfind ocamlopt -package batteries,sha $(PROF) -c examples/merkle.ml
@@ -56,7 +60,7 @@ verifier:
 	MODE=verifier ./poorman $(PROF) -c examples/redblack.ml
 	MODE=verifier ./poorman $(PROF) -c examples/mtree.ml
 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c  examples/driver.ml
-	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha  -o driver_vrf merkle.cmx skiplist.cmx bintree.cmx redblack.cmx mtree.cmx examples/driver.ml
+	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha  -o driver_vrf merkle.cmx mtree.cmx examples/driver.ml
 
 ideal:
 	ocamlfind ocamlopt -package batteries,sha $(PROF) -c examples/merkle.ml

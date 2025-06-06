@@ -45,6 +45,13 @@ let map_0 __func x = __func.authmap x
 
 let shallow_func = function
   | Merkle(d,_) -> Shallow d
+  | Shallow _ -> failwith "shallow_func called on shallow"
+  | Ideal _ -> failwith "shallow_func called on ideal"
+
+  (* Additional cases for suspension-buffer *)
+  | Suspended -> failwith "shallow_func called on suspended"
+  | Suspension _ -> failwith "shallow_func called on suspension"
+  | MerkleSusp (_, d, _) -> Shallow d
   | _ -> failwith "shallow_func called on not merkle"
 
 let unmerkle_func = function
@@ -61,7 +68,7 @@ let setup_verifier path = close_in !prf_input; prf_input := open_in_bin path
 (* let from_hex = Cryptokit.transform_string (Cryptokit.Hexa.decode()) *)
 
 (* let sha1hash s = Cryptokit.hash_string (Cryptokit.Hash.sha1()) s  *)
-let sha1hash s = Sha1.to_bin (Sha1.string s) 
+let sha1hash s = Sha256.to_bin (Sha256.string s) 
 
 let hash x = sha1hash (Marshal.to_string x no_share)
 
@@ -261,32 +268,6 @@ let finish_func : 'a authtype -> 'a authtype = function
   | Shallow d
   | Suspension {contents=Hash d} -> Shallow d
   | _ -> failwith "finish_func called on something else"
-
-let _unauth_verifier_susp map (a : 'a authtype) : 'a =
-  let x = Marshal.from_channel !prf_input in
-  let tag = object end in
-  let y, refs = build_susp tag map x in
-  let finish () =
-    let z = map {authmap=finish_func} y in
-    match a with
-    | Shallow d
-    | Suspension {contents=Hash d} ->
-        (* already valid *)
-        if d = hash z then ignore()
-        else failwith "Invalid data in proof stream"
-    | Suspension {contents=Tag(tag,i)} ->
-        (* propagate evidence *)
-        propagate_beliefs (hash z) tag i;
-        (* proceed with suspended disbelief *)
-        x
-    | _ -> failwith "_unauth_verifier finish called with other than"
-  in
-  if Array.length refs = 0 then begin
-    finish()
-  end else begin
-    Hashtbl.add susp_table tag (finish,Array.length refs,refs)
-  end;
-  y
 
 let _auth_verifier_susp map  (x : 'a) : 'a authtype = 
   (* Can't build an authtype with something that's been propagated *)
