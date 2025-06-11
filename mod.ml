@@ -196,8 +196,8 @@ class map = object (self)
     | ({ exp_desc= Texp_apply({exp_desc=Texp_ident(_,{txt=Longident.Lident "unauth"},_)} as f,
                             [_,Some x,_]); 
          exp_type=a} as e) ->
-           Printf.eprintf "unauth\n";
-           Printtyp.type_expr Format.err_formatter a;
+           (* Printf.eprintf "unauth\n";
+           Printtyp.type_expr Format.err_formatter a; *)
            Hashtbl.add loc_table f.exp_loc a;
            has_authtype e.exp_env a;
            ignore(super#expression x);
@@ -205,8 +205,8 @@ class map = object (self)
     | ({ exp_desc= Texp_apply({exp_desc=Texp_ident(_,{txt=Longident.Lident "auth"},_)} as f, 
                               [_,Some({exp_type=a} as x),_]);
          exp_type=_} as e) ->
-           Printf.eprintf "auth\n";
-           Printtyp.type_expr Format.err_formatter a;
+           (* Printf.eprintf "auth\n";
+           Printtyp.type_expr Format.err_formatter a; *)
            Hashtbl.add loc_table_auth f.exp_loc a;
            has_authtype e.exp_env a;
            ignore(super#expression x);

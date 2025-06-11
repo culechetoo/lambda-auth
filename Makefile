@@ -30,18 +30,18 @@ poorman: $(OBJS)
 
 redblack: 
 	ocamlfind ocamlopt -package batteries,sha $(PROF) -c examples/merkle.ml
-# #	prover
-# 	MODE=prover ./poorman $(PROF) -c examples/redblack.ml
-# 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
-# 	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_prv merkle.cmx redblack.cmx examples/driver_redblack.ml 
-# #	verifier
-# 	MODE=verifier ./poorman $(PROF) -c examples/redblack.ml
-# 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
-# 	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_vrf merkle.cmx redblack.cmx examples/driver_redblack.ml 
-#	ideal
-	MODE=ideal ./poorman $(PROF) -c examples/redblack.ml
+#	prover
+	MODE=prover ./poorman $(PROF) -c examples/redblack.ml
 	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
-	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_idl merkle.cmx redblack.cmx examples/driver_redblack.ml 
+	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_prv merkle.cmx redblack.cmx examples/driver_redblack.ml 
+#	verifier
+	MODE=verifier ./poorman $(PROF) -c examples/redblack.ml
+	ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
+	ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_vrf merkle.cmx redblack.cmx examples/driver_redblack.ml 
+	# ideal
+	# MODE=ideal ./poorman $(PROF) -c examples/redblack.ml
+	# ocamlfind ocamlopt $(PROF) -package benchmark,batteries,sha -c examples/driver_redblack.ml
+	# ocamlfind ocamlopt $(PROF) -linkpkg -package benchmark,batteries,sha -o redblack_idl merkle.cmx redblack.cmx examples/driver_redblack.ml 
 
 prover:
 	ocamlfind ocamlopt -package batteries,sha $(PROF) -c examples/merkle.ml
